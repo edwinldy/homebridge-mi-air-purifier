@@ -13,11 +13,14 @@ module.exports = function(homebridge) {
 function MiAirPurifier(log, config) {
 	this.log = log;
 	this.name = config.name || 'Air Purifier';
-	this.showAirQuality = config.showAirQuality || false;
+	this.id = config.id
+        this.showAirQuality = config.showAirQuality || false;
 	this.showTemperature = config.showTemperature || false;
 	this.showHumidity = config.showTemperature || false;
 
 	this.services = [];
+        if(!this.id)
+		throw new Error('Your must provide id of the airpurifier.');
 
 	// Modes supported
 	this.modes = [
@@ -84,6 +87,7 @@ MiAirPurifier.prototype = {
 	discover: function(){
 		var accessory = this;
 		var log = this.log;
+                var id = this.id
 
 		log.debug('Discovering Mi air purifier devices...');
 
@@ -98,6 +102,8 @@ MiAirPurifier.prototype = {
 			miio.device(reg).then(function(device){
 				if(device.type != 'air-purifier')
 					return;
+                                if(device.id != id)
+                                        return;
 
 				devices[reg.id] = device;
 				accessory.device = device;
